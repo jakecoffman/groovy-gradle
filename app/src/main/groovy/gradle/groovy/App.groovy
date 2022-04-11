@@ -3,12 +3,25 @@
  */
 package gradle.groovy
 
-class App {
-    String getGreeting() {
-        return 'Hello World!'
-    }
+import org.gradle.tooling.GradleConnector
+import org.gradle.tooling.model.idea.IdeaDependency
+import org.gradle.tooling.model.idea.IdeaModule
+import org.gradle.tooling.model.idea.IdeaProject
 
+class App {
     static void main(String[] args) {
-        println new App().greeting
+        def connection = GradleConnector.newConnector()
+            .forProjectDirectory(new File("app"))
+            .connect()
+
+        IdeaProject build = connection.model(IdeaProject.class).get()
+        build.modules.each { IdeaModule module ->
+            println "Project $module.name:"
+            module.dependencies.each { IdeaDependency dep ->
+                println dep
+            }
+        }
+
+        connection.close()
     }
 }
